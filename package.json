@@ -1,0 +1,50 @@
+{
+  "name": "@mapconductor/reactnative-for-maplibre",
+  "version": "0.1.1",
+  "description": "React Native provider for MapConductor MapLibre - the RN-only native bridge; see @mapconductor/react-for-maplibre for the web/React DOM provider.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "android",
+    "ios",
+    "MapConductorReactForMapLibre.podspec",
+    "react-native.config.js",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --watch",
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests yet'"
+  },
+  "keywords": [
+    "maps",
+    "maplibre",
+    "react-native",
+    "typescript"
+  ],
+  "author": "MapConductor",
+  "license": "Apache2",
+  "peerDependencies": {
+    "@mapconductor/js-sdk-core": "^0.1.0",
+    "react": "^19.2.0",
+    "react-native": ">=0.73.0"
+  },
+  "dependencies": {
+    "@mapconductor/js-sdk-core": "0.1.0",
+    "@mapconductor/js-sdk-react": "0.1.0"
+  },
+  "devDependencies": {
+    "react": "^19.2.7",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
