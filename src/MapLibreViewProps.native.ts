@@ -4,7 +4,7 @@ import type { MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import type { MapViewBaseProps } from '@mapconductor/js-sdk-react/native';
 import type { MapLibreViewState } from './MapLibreViewState.native';
 
-export interface MapLibreViewProps extends MapViewBaseProps<MapLibreViewState> {
+export interface MapLibreMapViewProps extends MapViewBaseProps<MapLibreViewState> {
   maxZoom?: number;
   minZoom?: number;
   className?: string;

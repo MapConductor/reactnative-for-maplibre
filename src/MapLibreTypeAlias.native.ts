@@ -4,5 +4,4 @@ import type { NativeMapLibreViewProps } from './MapLibreViewNativeComponent';
 
 export type MapLibreMapViewRef =
   React.ComponentRef<HostComponent<NativeMapLibreViewProps>> & NativeMethods;
-export type MapLibreMapView = MapLibreMapViewRef | null;
 export type MapLibreMap = null;

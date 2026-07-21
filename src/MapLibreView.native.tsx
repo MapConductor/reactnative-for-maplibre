@@ -15,13 +15,13 @@ import {
   useCollectAndRenderOverlays,
 } from '@mapconductor/js-sdk-react/native';
 import { MapLibreViewController } from './MapLibreViewController.native';
-import type { MapLibreViewProps } from './MapLibreViewProps.native';
+import type { MapLibreMapViewProps } from './MapLibreViewProps.native';
 import NativeMapLibreView, {
   toNativeCameraPosition,
   toNativeMarkerTilingOptions,
 } from './MapLibreViewNativeComponent';
 
-export function MapLibreView({
+export function MapLibreMapView({
   state,
   style,
   onMapLoaded,
@@ -32,7 +32,7 @@ export function MapLibreView({
   onCameraMoveEnd,
   markerTilingOptions,
   children,
-}: MapLibreViewProps) {
+}: MapLibreMapViewProps) {
   const nativeRef = useRef<React.ComponentRef<typeof NativeMapLibreView> | null>(null);
   const scope = useMemo(() => new MapViewScope(), []);
   const registry = useMemo(() => scope.buildRegistry(), [scope]);
