@@ -1,6 +1,6 @@
 {
   "name": "@mapconductor/reactnative-for-maplibre",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "private": true,
   "description": "React Native provider for MapConductor MapLibre - the RN-only native bridge; see @mapconductor/react-for-maplibre for the web/React DOM provider.",
   "main": "./dist/index.js",
@@ -35,13 +35,13 @@
   "author": "MapConductor",
   "license": "Apache2",
   "peerDependencies": {
-    "@mapconductor/js-sdk-core": "^0.1.1",
+    "@mapconductor/js-sdk-core": "^0.1.3",
     "react": "^19.2.0",
     "react-native": ">=0.73.0"
   },
   "dependencies": {
-    "@mapconductor/js-sdk-core": "^0.1.1",
-    "@mapconductor/js-sdk-react": "^0.1.1"
+    "@mapconductor/js-sdk-core": "^0.1.3",
+    "@mapconductor/js-sdk-react": "^0.1.3"
   },
   "devDependencies": {
     "react": "^19.2.7",

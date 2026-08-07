@@ -107,6 +107,6 @@ export function useMapLibreViewState(params: MapLibreViewStateParams = {}): MapL
   return state;
 }
 
-export function createMapLibreViewState(params: MapLibreViewStateParams = {}): MapLibreViewState {
+export function createMapLibreViewState(params: MapLibreViewStateParams = {}): MapLibreViewStateInterface {
   return new MapLibreViewState(params);
 }
