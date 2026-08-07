@@ -6,14 +6,19 @@ import {
   MapAttributionOverlay,
   MapContext,
   MapViewScope,
+  MapServiceRegistryProvider,
   MapViewScopeProvider,
   registerIconScaleCallback,
   unregisterIconScaleCallback,
   type InfoBubblePositionRequest,
   type InfoBubbleScreenPositionMap,
   type MarkerScreenPositionMap,
-  useCollectAndRenderOverlays,
 } from '@mapconductor/js-sdk-react/native';
+import {
+  useCollectAndRenderOverlays,
+  useCameraRestriction,
+  useMarkerRenderingSupport,
+} from '@mapconductor/js-sdk-react/internal';
 import { MapLibreViewController } from './MapLibreViewController.native';
 import type { MapLibreMapViewProps } from './MapLibreViewProps.native';
 import NativeMapLibreView, {
@@ -30,6 +35,7 @@ export function MapLibreMapView({
   onCameraMoveStart,
   onCameraMove,
   onCameraMoveEnd,
+  cameraRestriction,
   markerTilingOptions,
   children,
 }: MapLibreMapViewProps) {
@@ -49,11 +55,17 @@ export function MapLibreMapView({
   );
   const [infoBubblePositions, setInfoBubblePositions] = useState<InfoBubblePositionRequest[]>([]);
   const [isReady, setIsReady] = useState(false);
+  // `onMapLoaded` と同じ瞬間を「値」として持つ。イベントを取り逃した後から
+  // マウントした子（examples の Three.js overlay 等）も読めるようにするため。
+  const [isLoaded, setIsLoaded] = useState(false);
   const [attributionCamera, setAttributionCamera] = useState(() => state.cameraPosition);
   const [infoBubbleScreenPositions, setInfoBubbleScreenPositions] =
     useState<InfoBubbleScreenPositionMap>(() => new Map());
 
   useCollectAndRenderOverlays(registry, controller);
+  // ネイティブ側に範囲制限 API を渡していないため、BaseMapViewController の
+  // クランプ方式で効く（android-sdk の HERE/ArcGIS/TomTom と同じ振り分け）。
+  useCameraRestriction(controller, { cameraRestriction });
 
   useEffect(() => {
     const iconScaleCallback = markerTilingOptions?.iconScaleCallback;
@@ -118,7 +130,11 @@ export function MapLibreMapView({
   useEffect(() => {
     state.setController(controller);
 
-    controller.setMapInitializedListener(() => onMapLoadedRef.current?.(state));
+    controller.setMapInitializedListener(() => {
+        setIsLoaded(true);
+        setIsLoaded(true);
+        onMapLoadedRef.current?.(state);
+      });
     controller.setMapClickListener((point) => onMapClickRef.current?.(point));
     controller.setMapLongClickListener((point) => onMapLongClickRef.current?.(point));
     controller.setCameraMoveStartListener((camera) => {
@@ -140,133 +156,142 @@ export function MapLibreMapView({
     };
   }, [controller, state]);
 
+
+  // マーカー描画 capability をこのマップのサービスレジストリへ登録する。
+  // marker-clustering などの拡張がここから解決する
+  // （android-sdk の *MapView.kt / ios-sdk の *MapView.swift が
+  //  MarkerRenderingSupportKey を put するのと同じ位置づけ）。
+  useMarkerRenderingSupport(state, scope, controller);
+
   return (
-    <MapContext.Provider value={{ controller, isReady }}>
-      <MapViewScopeProvider scope={scope}>
-      <View style={style ?? { flex: 1 }}>
-        <NativeMapLibreView
-          ref={nativeRef}
-          style={StyleSheet.absoluteFill}
-          cameraPosition={toNativeCameraPosition(initialCameraPositionRef.current)}
-          mapDesignType={state.mapDesignType.getValue()}
-          markerTilingOptions={toNativeMarkerTilingOptions(markerTilingOptions)}
-          infoBubblePositions={infoBubblePositions}
-          onMapLoaded={() => {
-            setIsReady(true);
-            controller.onNativeMapLoaded();
-          }}
-          onMarkerCompositionBatchProcessed={(event) =>
-            controller.onNativeMarkerCompositionBatchProcessed(
-              event.nativeEvent.generation,
-              event.nativeEvent.sequence
-            )
-          }
-          onMapClick={(event) => controller.onNativeMapClick(GeoPoint.from(event.nativeEvent.point))}
-          onMapLongClick={(event) =>
-            controller.onNativeMapLongClick(GeoPoint.from(event.nativeEvent.point))
-          }
-          onCameraMoveStart={(event) => {
-            const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
-            setAttributionCamera(camera);
-            controller.onNativeCameraMoveStart(camera);
-          }}
-          onCameraMove={(event) => {
-            const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
-            setAttributionCamera(camera);
-            controller.onNativeCameraMove(camera);
-          }}
-          onCameraMoveEnd={(event) => {
-            const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
-            setAttributionCamera(camera);
-            controller.onNativeCameraMoveEnd(camera);
-          }}
-          onMarkerClick={(event) => controller.onNativeMarkerClick(event.nativeEvent.markerId)}
-          onCircleClick={(event) =>
-            controller.onNativeCircleClick(
-              event.nativeEvent.circleId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onGroundImageClick={(event) =>
-            controller?.onNativeGroundImageClick(
-              event.nativeEvent.groundImageId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onPolylineClick={(event) =>
-            controller.onNativePolylineClick(
-              event.nativeEvent.polylineId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onPolygonClick={(event) =>
-            controller.onNativePolygonClick(
-              event.nativeEvent.polygonId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onMarkerDragStart={(event) =>
-            controller.onNativeMarkerDragStart(
-              event.nativeEvent.markerId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onMarkerDrag={(event) =>
-            controller.onNativeMarkerDrag(
-              event.nativeEvent.markerId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onMarkerDragEnd={(event) =>
-            controller.onNativeMarkerDragEnd(
-              event.nativeEvent.markerId,
-              GeoPoint.from(event.nativeEvent.point)
-            )
-          }
-          onMarkerAnimateStart={(event) =>
-            controller.onNativeMarkerAnimateStart(event.nativeEvent.markerId)
-          }
-          onMarkerAnimateEnd={(event) =>
-            controller.onNativeMarkerAnimateEnd(event.nativeEvent.markerId)
-          }
-          onMarkerScreenPositions={(event) => {
-            const positions = event.nativeEvent.positions;
-            setMarkerScreenPositions((previous) => {
-              // Keeping the previous (empty) Map lets React bail out of the
-              // re-render that an identical-but-new Map would trigger.
-              if (previous.size === 0 && positions.length === 0) return previous;
-              return new Map(
-                positions.map((position) => [position.markerId, { x: position.x, y: position.y }])
-              );
-            });
-          }}
-          onInfoBubbleScreenPositions={(event) => {
-            const positions = event.nativeEvent.positions;
-            setInfoBubbleScreenPositions((previous) => {
-              if (previous.size === 0 && positions.length === 0) return previous;
-              return new Map(
-                positions.map((position) => [position.id, { x: position.x, y: position.y }])
-              );
-            });
-          }}
-          onNativeMapExtensionEvent={(event) =>
-            controller?.onNativeMapExtensionEvent(event.nativeEvent)
-          }
-        />
-        <InfoBubbleLayer
-          scope={scope}
-          markerScreenPositions={markerScreenPositions}
-          infoBubbleScreenPositions={infoBubbleScreenPositions}
-          onPositionRequestsChange={setInfoBubblePositions}
-        />
-        <MapAttributionOverlay
-          scope={scope}
-          camera={attributionCamera}
-          designAttributionRules={state.mapDesignType.attributionRules}
-        />
-        {children}
-      </View>
-      </MapViewScopeProvider>
+    <MapContext.Provider value={{ controller, isReady, isLoaded, state: state ?? null }}>
+      <MapServiceRegistryProvider registry={state?.serviceRegistry}>
+        <MapViewScopeProvider scope={scope}>
+          <View style={style ?? { flex: 1 }}>
+            <NativeMapLibreView
+              ref={nativeRef}
+              style={StyleSheet.absoluteFill}
+              cameraPosition={toNativeCameraPosition(initialCameraPositionRef.current)}
+              mapDesignType={state.mapDesignType.getValue()}
+              markerTilingOptions={toNativeMarkerTilingOptions(markerTilingOptions)}
+              infoBubblePositions={infoBubblePositions}
+              onMapLoaded={() => {
+                setIsReady(true);
+                controller.onNativeMapLoaded();
+              }}
+              onMarkerCompositionBatchProcessed={(event) =>
+                controller.onNativeMarkerCompositionBatchProcessed(
+                  event.nativeEvent.generation,
+                  event.nativeEvent.sequence
+                )
+              }
+              onMapClick={(event) => controller.onNativeMapClick(GeoPoint.from(event.nativeEvent.point))}
+              onMapLongClick={(event) =>
+                controller.onNativeMapLongClick(GeoPoint.from(event.nativeEvent.point))
+              }
+              onCameraMoveStart={(event) => {
+                const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+                setAttributionCamera(camera);
+                controller.onNativeCameraMoveStart(camera);
+              }}
+              onCameraMove={(event) => {
+                const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+                setAttributionCamera(camera);
+                controller.onNativeCameraMove(camera);
+              }}
+              onCameraMoveEnd={(event) => {
+                const camera = MapCameraPosition.from(event.nativeEvent.cameraPosition);
+                setAttributionCamera(camera);
+                controller.onNativeCameraMoveEnd(camera);
+              }}
+              onMarkerClick={(event) => controller.onNativeMarkerClick(event.nativeEvent.markerId)}
+              onCircleClick={(event) =>
+                controller.onNativeCircleClick(
+                  event.nativeEvent.circleId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onGroundImageClick={(event) =>
+                controller?.onNativeGroundImageClick(
+                  event.nativeEvent.groundImageId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onPolylineClick={(event) =>
+                controller.onNativePolylineClick(
+                  event.nativeEvent.polylineId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onPolygonClick={(event) =>
+                controller.onNativePolygonClick(
+                  event.nativeEvent.polygonId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onMarkerDragStart={(event) =>
+                controller.onNativeMarkerDragStart(
+                  event.nativeEvent.markerId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onMarkerDrag={(event) =>
+                controller.onNativeMarkerDrag(
+                  event.nativeEvent.markerId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onMarkerDragEnd={(event) =>
+                controller.onNativeMarkerDragEnd(
+                  event.nativeEvent.markerId,
+                  GeoPoint.from(event.nativeEvent.point)
+                )
+              }
+              onMarkerAnimateStart={(event) =>
+                controller.onNativeMarkerAnimateStart(event.nativeEvent.markerId)
+              }
+              onMarkerAnimateEnd={(event) =>
+                controller.onNativeMarkerAnimateEnd(event.nativeEvent.markerId)
+              }
+              onMarkerScreenPositions={(event) => {
+                const positions = event.nativeEvent.positions;
+                setMarkerScreenPositions((previous) => {
+                  // Keeping the previous (empty) Map lets React bail out of the
+                  // re-render that an identical-but-new Map would trigger.
+                  if (previous.size === 0 && positions.length === 0) return previous;
+                  return new Map(
+                    positions.map((position) => [position.markerId, { x: position.x, y: position.y }])
+                  );
+                });
+              }}
+              onInfoBubbleScreenPositions={(event) => {
+                const positions = event.nativeEvent.positions;
+                setInfoBubbleScreenPositions((previous) => {
+                  if (previous.size === 0 && positions.length === 0) return previous;
+                  return new Map(
+                    positions.map((position) => [position.id, { x: position.x, y: position.y }])
+                  );
+                });
+              }}
+              onNativeMapExtensionEvent={(event) =>
+                controller?.onNativeMapExtensionEvent(event.nativeEvent)
+              }
+            />
+            <InfoBubbleLayer
+              scope={scope}
+              markerScreenPositions={markerScreenPositions}
+              infoBubbleScreenPositions={infoBubbleScreenPositions}
+              onPositionRequestsChange={setInfoBubblePositions}
+            />
+            <MapAttributionOverlay
+              scope={scope}
+              camera={attributionCamera}
+              designAttributionRules={state.mapDesignType.attributionRules}
+            />
+            {children}
+          </View>
+        </MapViewScopeProvider>
+      </MapServiceRegistryProvider>
     </MapContext.Provider>
   );
 }

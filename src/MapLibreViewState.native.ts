@@ -65,7 +65,7 @@ export class MapLibreViewState
         : this._cameraPosition.copy({ position: positionOrCamera as GeoPoint });
 
     if (durationMillis && durationMillis > 0) {
-      this._controller?.animateCamera(newPosition, { duration: durationMillis });
+      this._controller?.animateCamera(newPosition, durationMillis);
     } else {
       this._controller?.moveCamera(newPosition);
     }
@@ -78,7 +78,7 @@ export class MapLibreViewState
   }
 
   override fitBounds(bounds: GeoRectBounds, padding: number = 0): void {
-    void this._controller?.fitBounds(bounds, { padding });
+    void this._controller?.fitBounds(bounds, padding);
   }
 
   setController(ctrl: MapViewControllerInterface | null): void {
