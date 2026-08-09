@@ -8,33 +8,6 @@ import com.mapconductor.core.features.GeoPointInterface
 import com.mapconductor.core.features.GeoRectBounds
 import com.mapconductor.core.map.MapCameraPosition
 import com.mapconductor.core.map.VisibleRegion
-import com.mapconductor.maplibre.toGeoPoint
-import com.mapconductor.maplibre.toLatLng
-import org.maplibre.android.camera.CameraPosition
-
-private const val MAPLIBRE_TO_GOOGLE_ZOOM_OFFSET = 1.0
-
-private fun maplibreZoomToGoogleZoom(maplibreZoom: Double): Double =
-    (maplibreZoom + MAPLIBRE_TO_GOOGLE_ZOOM_OFFSET).coerceIn(0.0, 22.0)
-
-private fun googleZoomToMaplibreZoom(googleZoom: Double): Double =
-    (googleZoom - MAPLIBRE_TO_GOOGLE_ZOOM_OFFSET).coerceIn(0.0, 22.0)
-
-fun MapCameraPosition.toCameraPosition(): CameraPosition =
-    CameraPosition.Builder()
-        .target(position.toLatLng())
-        .zoom(googleZoomToMaplibreZoom(zoom))
-        .bearing(bearing)
-        .tilt(tilt.coerceIn(0.0, 60.0))
-        .build()
-
-fun CameraPosition.toMapCameraPosition(): MapCameraPosition =
-    MapCameraPosition(
-        position = target?.toGeoPoint() ?: GeoPoint(0.0, 0.0),
-        zoom = maplibreZoomToGoogleZoom(zoom),
-        bearing = bearing ?: 0.0,
-        tilt = tilt ?: 0.0,
-    )
 
 fun MapCameraPosition.toWritableMap(): WritableMap =
     Arguments.createMap().apply {

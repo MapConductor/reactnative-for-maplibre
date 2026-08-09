@@ -132,10 +132,9 @@ export function MapLibreMapView({
     mapViewStateInternal(state).setController(controller);
 
     controller.setMapInitializedListener(() => {
-        setIsLoaded(true);
-        setIsLoaded(true);
-        onMapLoadedRef.current?.(state);
-      });
+      setIsLoaded(true);
+      onMapLoadedRef.current?.(state);
+    });
     controller.setMapClickListener((point) => onMapClickRef.current?.(point));
     controller.setMapLongClickListener((point) => onMapLongClickRef.current?.(point));
     controller.setCameraMoveStartListener((camera) => {

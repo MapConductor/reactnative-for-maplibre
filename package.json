@@ -41,7 +41,8 @@
   },
   "dependencies": {
     "@mapconductor/js-sdk-core": "^0.1.3",
-    "@mapconductor/js-sdk-react": "^0.1.3"
+    "@mapconductor/js-sdk-react": "^0.1.3",
+    "@mapconductor/react-for-maplibre": "^0.1.3"
   },
   "devDependencies": {
     "react": "^19.2.7",
