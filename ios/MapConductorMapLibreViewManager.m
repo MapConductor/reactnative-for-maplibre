@@ -10,6 +10,7 @@
 - (void)setInfoBubblePositions:(NSArray *)positions;
 - (void)moveCamera:(NSDictionary *)payload duration:(double)duration;
 - (void)clearOverlays;
+- (void)applyUISettings:(NSDictionary *)payload;
 - (void)beginMarkerComposition:(NSInteger)generation icons:(NSArray *)icons;
 - (void)appendMarkerComposition:(NSInteger)generation sequence:(NSInteger)sequence payload:(NSDictionary *)payload;
 - (void)commitMarkerComposition:(NSInteger)generation;
@@ -154,6 +155,12 @@ RCT_EXPORT_METHOD(updateMarker:(nonnull NSNumber *)tag payload:(nonnull NSDictio
 RCT_EXPORT_METHOD(fitBounds:(nonnull NSNumber *)tag bounds:(nonnull NSDictionary *)bounds padding:(NSInteger)padding) {
   [self withView:tag block:^(MCMapLibreReactNativeView *v) {
     if ([v respondsToSelector:@selector(fitBounds:padding:)]) [v fitBounds:bounds padding:padding];
+  }];
+}
+
+RCT_EXPORT_METHOD(applyUISettings:(nonnull NSNumber *)tag payload:(nonnull NSDictionary *)payload) {
+  [self withView:tag block:^(MCMapLibreReactNativeView *v) {
+    if ([v respondsToSelector:@selector(applyUISettings:)]) [v applyUISettings:payload];
   }];
 }
 

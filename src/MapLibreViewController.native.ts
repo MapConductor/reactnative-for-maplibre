@@ -29,6 +29,7 @@ import {
   type NativeMapExtensionEvent,
   type NativeMapExtensionEventHandler,
   wrapClickedPoint,
+  type MapUISettings,
 } from '@mapconductor/js-sdk-core';
 import {
   createNativeMarkerIconRegistry,
@@ -134,6 +135,21 @@ export class MapLibreViewController
 
   getCameraPosition(): MapCameraPosition | null {
     return this.cameraPosition;
+  }
+
+  /**
+   * ジェスチャ設定をネイティブへ転送する。web 版が地図エンジンへ直接適用するのに対し、
+   * RN はネイティブのコントローラが `applyUISettings` を持つのでブリッジ 1 本で済む。
+   */
+  applyUISettings(settings: MapUISettings): void {
+    this.dispatchCommand('applyUISettings', [
+      {
+        scrollGesture: settings.scrollGesture,
+        zoomGesture: settings.zoomGesture,
+        rotateGesture: settings.rotateGesture,
+        tiltGesture: settings.tiltGesture,
+      },
+    ]);
   }
 
 

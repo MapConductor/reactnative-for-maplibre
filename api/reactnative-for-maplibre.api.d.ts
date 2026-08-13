@@ -2,7 +2,7 @@ import { MapLibreViewStateInterface } from '@mapconductor/react-for-maplibre/sta
 export { MapLibreDesign, MapLibreMapDesignType, MapLibreViewState, MapLibreViewStateInterface, MapLibreViewStateParams, useMapLibreViewState } from '@mapconductor/react-for-maplibre/state';
 import React from 'react';
 import { ViewProps, HostComponent, NativeMethods, StyleProp, ViewStyle } from 'react-native';
-import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface, MapViewHolder, Offset, BaseMapViewController, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost, MarkerAnimation } from '@mapconductor/js-sdk-core';
+import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface, MapViewHolder, Offset, BaseMapViewController, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost, MarkerAnimation } from '@mapconductor/js-sdk-core';
 import { NativeMapExtensionEvent, MapViewBaseProps, NativeMarkerIconPayload } from '@mapconductor/js-sdk-react/native';
 
 interface NativeMapLibreViewEvent<T> {
@@ -177,6 +177,11 @@ declare class MapLibreViewController extends BaseMapViewController implements Ma
     animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean>;
     fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
     getCameraPosition(): MapCameraPosition | null;
+    /**
+     * ジェスチャ設定をネイティブへ転送する。web 版が地図エンジンへ直接適用するのに対し、
+     * RN はネイティブのコントローラが `applyUISettings` を持つのでブリッジ 1 本で済む。
+     */
+    applyUISettings(settings: MapUISettings): void;
     compositionMarkers(data: MarkerState[]): Promise<void>;
     updateMarker(state: MarkerState): Promise<void>;
     compositionPolylines(data: PolylineState[]): Promise<void>;

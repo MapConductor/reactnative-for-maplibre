@@ -59,6 +59,7 @@ class MapConductorMapLibreViewManager : SimpleViewManager<MapLibreMapViewWrapper
             "animateCamera" -> root.animateCamera(args?.getMap(0), args?.getInt(1) ?: 0)
             "fitBounds" -> root.fitBounds(args?.getMap(0), args?.getInt(1) ?: 0)
             "clearOverlays" -> root.clearOverlays()
+            "applyUISettings" -> root.applyUISettings(args?.getMap(0))
             "compositionMarkers" -> root.compositionMarkers(args?.getMap(0))
             "beginMarkerComposition" ->
                 root.beginMarkerComposition(

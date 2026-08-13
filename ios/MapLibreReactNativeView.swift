@@ -95,6 +95,18 @@ public final class MapLibreReactNativeView: UIView {
         model.state.fitBounds(bounds: mcGeoRectBounds(bounds), padding: padding)
     }
 
+
+    /// `state.uiSettings` のジェスチャ設定を適用する。省略されたフラグは既定（有効）。
+    @objc public func applyUISettings(_ payload: [String: Any]) {
+        func flag(_ key: String) -> Bool { (payload[key] as? NSNumber)?.boolValue ?? true }
+        model.state.uiSettings = MapUISettings(
+            scrollGesture: flag("scrollGesture"),
+            zoomGesture: flag("zoomGesture"),
+            rotateGesture: flag("rotateGesture"),
+            tiltGesture: flag("tiltGesture")
+        )
+    }
+
     // MARK: - Overlays
 
     @objc public func clearOverlays() {
