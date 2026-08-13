@@ -1,26 +1,8 @@
-import type React from 'react';
-import { MapViewHolderBase } from '@mapconductor/js-sdk-core';
-import type { GeoPoint, Offset } from '@mapconductor/js-sdk-core';
+import { ReactNativeMapViewHolder } from '@mapconductor/js-sdk-react/internal';
 import type { MapLibreMapViewRef } from './MapLibreTypeAlias.native';
 
-export class MapLibreMapViewHolder
-  extends MapViewHolderBase<MapLibreMapViewRef | null, null>
-{
-  readonly map = null;
-
-  constructor(private readonly nativeRef: React.RefObject<MapLibreMapViewRef | null>) {
-    super();
-  }
-
-  get mapView(): MapLibreMapViewRef | null {
-    return this.nativeRef.current;
-  }
-
-  toScreenOffset(_position: GeoPoint): null {
-    return null;
-  }
-
-  fromScreenOffsetSync(_offset: Offset): GeoPoint | null {
-    return null;
-  }
-}
+/**
+ * RN のホルダーは全プロバイダで同一（投影はネイティブ側が行う）なので
+ * {@link ReactNativeMapViewHolder} に集約してある。ここは ref 型を与えるだけ。
+ */
+export class MapLibreMapViewHolder extends ReactNativeMapViewHolder<MapLibreMapViewRef> {}

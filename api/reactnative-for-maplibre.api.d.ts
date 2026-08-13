@@ -2,8 +2,10 @@ import { MapLibreViewStateInterface } from '@mapconductor/react-for-maplibre/sta
 export { MapLibreDesign, MapLibreMapDesignType, MapLibreViewState, MapLibreViewStateInterface, MapLibreViewStateParams, useMapLibreViewState } from '@mapconductor/react-for-maplibre/state';
 import React from 'react';
 import { ViewProps, HostComponent, NativeMethods, StyleProp, ViewStyle } from 'react-native';
-import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface, MapViewHolderBase, Offset, BaseMapViewController, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost, MarkerAnimation } from '@mapconductor/js-sdk-core';
-import { NativeMapExtensionEvent, MapViewBaseProps, NativeMarkerIconPayload } from '@mapconductor/js-sdk-react/native';
+import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface } from '@mapconductor/js-sdk-core';
+import { NativeMapExtensionEvent, MapViewBaseProps } from '@mapconductor/js-sdk-react/native';
+import { ReactNativeBridgeMapViewController, ReactNativeMapViewHolder } from '@mapconductor/js-sdk-react/internal';
+export { NativeMarkerStatePayload as NativeMapLibreMarkerState, markerStateToNative } from '@mapconductor/js-sdk-react/internal';
 
 interface NativeMapLibreViewEvent<T> {
     nativeEvent: T;
@@ -129,115 +131,19 @@ type MapLibreMap = null;
 
 type MapLibreViewControllerInterface = MapViewControllerInterface;
 
-declare class MapLibreMapViewHolder extends MapViewHolderBase<MapLibreMapViewRef | null, null> {
-    private readonly nativeRef;
-    readonly map: null;
-    constructor(nativeRef: React.RefObject<MapLibreMapViewRef | null>);
-    get mapView(): MapLibreMapViewRef | null;
-    toScreenOffset(_position: GeoPoint): null;
-    fromScreenOffsetSync(_offset: Offset): GeoPoint | null;
+/**
+ * ネイティブブリッジの実装は全 RN プロバイダで同一なので
+ * {@link ReactNativeBridgeMapViewController} に集約してある。ここはネイティブビューの
+ * ref 型を与えるだけ。プロバイダ固有の振る舞いが要るときだけメソッドを override する。
+ */
+declare class MapLibreViewController extends ReactNativeBridgeMapViewController<MapLibreMapViewRef> {
 }
 
-declare class MapLibreViewController extends BaseMapViewController implements MapViewControllerInterface, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable {
-    private readonly nativeRef;
-    readonly holder: MapLibreMapViewHolder;
-    private cameraPosition;
-    private mapLoaded;
-    private markerCompositionGeneration;
-    private activeMarkerComposition;
-    private pendingMarkerComposition;
-    private markerBatchAck;
-    private readonly pendingMarkerUpdates;
-    private readonly markerStates;
-    private readonly circleStates;
-    private readonly groundImageStates;
-    private readonly polygonStates;
-    private readonly polylineStates;
-    private readonly rasterLayerStates;
-    private pendingPolygons;
-    private pendingCircles;
-    private pendingGroundImages;
-    private pendingPolylines;
-    private pendingRasterLayers;
-    private markerClickListener;
-    private circleClickListener;
-    private groundImageClickListener;
-    private markerDragStartListener;
-    private markerDragListener;
-    private markerDragEndListener;
-    private markerAnimateStartListener;
-    private markerAnimateEndListener;
-    private polygonClickListener;
-    private polylineClickListener;
-    private readonly nativeMapExtensionEventHandlers;
-    constructor(nativeRef: React.RefObject<MapLibreMapViewRef | null>, cameraPosition: MapCameraPosition);
-    clearOverlays(): Promise<void>;
-    moveCamera(position: MapCameraPosition): Promise<boolean>;
-    animateCamera(position: MapCameraPosition, durationMillis: number): Promise<boolean>;
-    fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean>;
-    getCameraPosition(): MapCameraPosition | null;
-    /**
-     * ジェスチャ設定をネイティブへ転送する。web 版が地図エンジンへ直接適用するのに対し、
-     * RN はネイティブのコントローラが `applyUISettings` を持つのでブリッジ 1 本で済む。
-     */
-    applyUISettings(settings: MapUISettings): void;
-    compositionMarkers(data: MarkerState[]): Promise<void>;
-    updateMarker(state: MarkerState): Promise<void>;
-    compositionPolylines(data: PolylineState[]): Promise<void>;
-    compositionCircles(data: CircleState[]): Promise<void>;
-    updateCircle(state: CircleState): Promise<void>;
-    hasCircle(state: CircleState): boolean;
-    setOnCircleClickListener(listener: OnCircleEventHandler | null): void;
-    compositionGroundImages(data: GroundImageState[]): Promise<void>;
-    updateGroundImage(state: GroundImageState): Promise<void>;
-    hasGroundImage(state: GroundImageState): boolean;
-    setOnGroundImageClickListener(listener: OnGroundImageEventHandler | null): void;
-    compositionPolygons(data: PolygonState[]): Promise<void>;
-    updatePolygon(state: PolygonState): Promise<void>;
-    hasPolygon(state: PolygonState): boolean;
-    setOnPolygonClickListener(listener: OnPolygonEventHandler | null): void;
-    updatePolyline(state: PolylineState): Promise<void>;
-    hasPolyline(state: PolylineState): boolean;
-    setOnPolylineClickListener(listener: OnPolylineEventHandler | null): void;
-    compositionRasterLayers(data: RasterLayerState[]): Promise<void>;
-    updateRasterLayer(state: RasterLayerState): Promise<void>;
-    hasRasterLayer(state: RasterLayerState): boolean;
-    upsertNativeMapExtension(extension: NativeMapExtensionDescriptor, eventHandler?: NativeMapExtensionEventHandler | null): void;
-    removeNativeMapExtension(extensionId: string): void;
-    onNativeMapExtensionEvent(event: NativeMapExtensionEvent$1): void;
-    hasMarker(state: MarkerState): boolean;
-    setOnMarkerClickListener(listener: OnMarkerEventHandler | null): void;
-    setOnMarkerDragStart(listener: OnMarkerEventHandler | null): void;
-    setOnMarkerDrag(listener: OnMarkerEventHandler | null): void;
-    setOnMarkerDragEnd(listener: OnMarkerEventHandler | null): void;
-    setOnMarkerAnimateStart(listener: OnMarkerEventHandler | null): void;
-    setOnMarkerAnimateEnd(listener: OnMarkerEventHandler | null): void;
-    setMarkerAnimationOverlayHost(_host: MarkerAnimationOverlayHost | null): void;
-    setMapInitializedListener(listener: (() => void) | null): void;
-    destroy(): void;
-    onNativeMapLoaded(): void;
-    onNativeMarkerCompositionBatchProcessed(generation: number, sequence: number): void;
-    onNativeMapClick(point: GeoPoint): void;
-    onNativeMapLongClick(point: GeoPoint): void;
-    onNativeMarkerClick(markerId: string): void;
-    onNativeCircleClick(circleId: string, clicked: GeoPoint): void;
-    onNativeGroundImageClick(groundImageId: string, clicked: GeoPoint): void;
-    onNativePolylineClick(polylineId: string, clicked: GeoPoint): void;
-    onNativePolygonClick(polygonId: string, clicked: GeoPoint): void;
-    onNativeMarkerDragStart(markerId: string, point: GeoPoint): void;
-    onNativeMarkerDrag(markerId: string, point: GeoPoint): void;
-    onNativeMarkerDragEnd(markerId: string, point: GeoPoint): void;
-    onNativeMarkerAnimateStart(markerId: string): void;
-    onNativeMarkerAnimateEnd(markerId: string): void;
-    onNativeCameraMoveStart(camera: MapCameraPosition): void;
-    onNativeCameraMove(camera: MapCameraPosition): void;
-    onNativeCameraMoveEnd(camera: MapCameraPosition): void;
-    private dispatchCommand;
-    private flushPendingMarkerUpdates;
-    private startPendingMarkerComposition;
-    private waitForMarkerBatchAck;
-    private cancelMarkerBatchAck;
-    private cancelMarkerComposition;
+/**
+ * RN のホルダーは全プロバイダで同一（投影はネイティブ側が行う）なので
+ * {@link ReactNativeMapViewHolder} に集約してある。ここは ref 型を与えるだけ。
+ */
+declare class MapLibreMapViewHolder extends ReactNativeMapViewHolder<MapLibreMapViewRef> {
 }
 
 interface MapLibreMapViewProps extends MapViewBaseProps<MapLibreViewStateInterface> {
@@ -252,15 +158,4 @@ interface MapLibreMapViewProps extends MapViewBaseProps<MapLibreViewStateInterfa
 
 declare function MapLibreMapView({ state, style, onMapLoaded, onMapClick, onMapLongClick, onCameraMoveStart, onCameraMove, onCameraMoveEnd, cameraRestriction, markerTilingOptions, children, }: MapLibreMapViewProps): React.JSX.Element;
 
-interface NativeMapLibreMarkerState {
-    id: string;
-    position: MarkerState['position'];
-    clickable: boolean;
-    draggable: boolean;
-    zIndex: number;
-    icon: NativeMarkerIconPayload | null;
-    animation: MarkerAnimation | null;
-}
-declare function markerStateToNative(state: MarkerState): NativeMapLibreMarkerState;
-
-export { type MapLibreMap, MapLibreMapView, MapLibreMapViewHolder, type MapLibreMapViewProps, type MapLibreMapViewRef, MapLibreViewController, type MapLibreViewControllerInterface, type NativeMapLibreMarkerState, type NativeMapLibreViewEvent, type NativeMapLibreViewProps, type NativeMarkerTilingOptions, markerStateToNative, toNativeCameraPosition, toNativeMarkerTilingOptions };
+export { type MapLibreMap, MapLibreMapView, MapLibreMapViewHolder, type MapLibreMapViewProps, type MapLibreMapViewRef, MapLibreViewController, type MapLibreViewControllerInterface, type NativeMapLibreViewEvent, type NativeMapLibreViewProps, type NativeMarkerTilingOptions, toNativeCameraPosition, toNativeMarkerTilingOptions };

@@ -1,28 +1,8 @@
-import type { MarkerAnimation, MarkerState } from '@mapconductor/js-sdk-core';
-import {
-  markerIconToNative,
-  type NativeMarkerIconPayload,
-} from '@mapconductor/js-sdk-react/native';
-
-export interface NativeMapLibreMarkerState {
-  id: string;
-  position: MarkerState['position'];
-  clickable: boolean;
-  draggable: boolean;
-  zIndex: number;
-  icon: NativeMarkerIconPayload | null;
-  animation: MarkerAnimation | null;
-}
-
-export function markerStateToNative(state: MarkerState): NativeMapLibreMarkerState {
-  return {
-    id: state.id,
-    position: state.position,
-    clickable: state.clickable,
-    draggable: state.draggable,
-    // ネイティブ側は数値必須。未指定(null)は 0 として送る。
-    zIndex: state.zIndex ?? 0,
-    icon: markerIconToNative(state.icon),
-    animation: state.animation,
-  };
-}
+/**
+ * マーカーの変換は全 RN プロバイダで同一なので js-sdk-react に集約してある。
+ * ここは既存 import 経路を保つための再輸出のみ。
+ */
+export {
+  markerStateToNative,
+  type NativeMarkerStatePayload as NativeMapLibreMarkerState,
+} from '@mapconductor/js-sdk-react/internal';
