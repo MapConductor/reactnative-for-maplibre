@@ -2,7 +2,7 @@ import { MapLibreViewStateInterface } from '@mapconductor/react-for-maplibre/sta
 export { MapLibreDesign, MapLibreMapDesignType, MapLibreViewState, MapLibreViewStateInterface, MapLibreViewStateParams, useMapLibreViewState } from '@mapconductor/react-for-maplibre/state';
 import React from 'react';
 import { ViewProps, HostComponent, NativeMethods, StyleProp, ViewStyle } from 'react-native';
-import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface, MapViewHolder, Offset, BaseMapViewController, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost, MarkerAnimation } from '@mapconductor/js-sdk-core';
+import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewControllerInterface, MapViewHolderBase, Offset, BaseMapViewController, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost, MarkerAnimation } from '@mapconductor/js-sdk-core';
 import { NativeMapExtensionEvent, MapViewBaseProps, NativeMarkerIconPayload } from '@mapconductor/js-sdk-react/native';
 
 interface NativeMapLibreViewEvent<T> {
@@ -129,13 +129,12 @@ type MapLibreMap = null;
 
 type MapLibreViewControllerInterface = MapViewControllerInterface;
 
-declare class MapLibreMapViewHolder implements MapViewHolder<MapLibreMapViewRef | null, null> {
+declare class MapLibreMapViewHolder extends MapViewHolderBase<MapLibreMapViewRef | null, null> {
     private readonly nativeRef;
     readonly map: null;
     constructor(nativeRef: React.RefObject<MapLibreMapViewRef | null>);
     get mapView(): MapLibreMapViewRef | null;
     toScreenOffset(_position: GeoPoint): null;
-    fromScreenOffset(_offset: Offset): Promise<GeoPoint | null>;
     fromScreenOffsetSync(_offset: Offset): GeoPoint | null;
 }
 

@@ -19,6 +19,7 @@ import {
   useCollectAndRenderOverlays,
   useCameraRestriction,
   useMapUISettings,
+  useNativeCapabilityDeclarations,
   useMarkerRenderingSupport,
 } from '@mapconductor/js-sdk-react/internal';
 import { MapLibreViewController } from './MapLibreViewController.native';
@@ -70,6 +71,8 @@ export function MapLibreMapView({
   useCameraRestriction(controller, { cameraRestriction });
   // state.uiSettings をネイティブのコントローラへ流す（web の MapViewBase 相当）。
   useMapUISettings(state, controller);
+  // RN は同期投影を持たない（ネイティブ側で投影する）ことを明示する。
+  useNativeCapabilityDeclarations(state);
 
   useEffect(() => {
     const iconScaleCallback = markerTilingOptions?.iconScaleCallback;
