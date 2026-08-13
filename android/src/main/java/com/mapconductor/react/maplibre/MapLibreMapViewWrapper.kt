@@ -1,5 +1,6 @@
 package com.mapconductor.react.maplibre
 
+import com.mapconductor.react.wrapper.MapConductorMapViewWrapper
 import com.mapconductor.react.codec.fromReadableMap
 import com.mapconductor.react.codec.geoRectBoundsFromReadableMap
 import com.mapconductor.react.codec.toWritableMap
@@ -84,7 +85,8 @@ import org.maplibre.android.maps.MapView
 import com.mapconductor.maplibre.MapLibreDesign as ComposeMapLibreDesign
 
 class MapLibreMapViewWrapper(context: Context) :
-    FrameLayout(context) {
+    FrameLayout(context),
+    MapConductorMapViewWrapper {
 
     companion object {
         // Shared across all wrapper instances, one background thread. ReadableArray/ReadableMap
@@ -233,11 +235,11 @@ class MapLibreMapViewWrapper(context: Context) :
         mapController?.setMapDesignType(pendingMapDesign)
     }
 
-    fun moveCamera(cameraPosition: ReadableMap?) {
+    override fun moveCamera(cameraPosition: ReadableMap?) {
         setCameraPosition(cameraPosition)
     }
 
-    fun animateCamera(
+    override fun animateCamera(
         cameraPosition: ReadableMap?,
         durationMillis: Int,
     ) {
@@ -245,7 +247,7 @@ class MapLibreMapViewWrapper(context: Context) :
         mapController?.animateCamera(pendingCameraPosition, durationMillis.toLong())
     }
 
-    fun fitBounds(
+    override fun fitBounds(
         bounds: ReadableMap?,
         padding: Int,
     ) {
@@ -295,7 +297,7 @@ class MapLibreMapViewWrapper(context: Context) :
      * `state.uiSettings` のジェスチャ設定をネイティブへ適用する。
      * 省略されたフラグは MapUISettings の既定（true = 有効）に倒す。
      */
-    fun applyUISettings(payload: ReadableMap?) {
+    override fun applyUISettings(payload: ReadableMap?) {
         val settings =
             MapUISettings(
                 scrollGesture = payload?.takeIf { it.hasKey("scrollGesture") }?.getBoolean("scrollGesture") ?: true,
@@ -307,7 +309,7 @@ class MapLibreMapViewWrapper(context: Context) :
         mapController?.applyUISettings(settings)
     }
 
-    fun clearOverlays() {
+    override fun clearOverlays() {
         // Routed through markerCoroutine so it's ordered against any in-flight
         // compositionMarkers/updateMarker call on the same queue.
         markerCoroutine.launch {
@@ -336,7 +338,7 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun compositionMarkers(payload: ReadableMap?) {
+    override fun compositionMarkers(payload: ReadableMap?) {
         markerCoroutine.launch {
             val previousStates = markerStates
             val nextStates =
@@ -355,7 +357,7 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun beginMarkerComposition(
+    override fun beginMarkerComposition(
         generation: Int,
         iconDictionary: ReadableArray?,
     ) {
@@ -375,7 +377,7 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun appendMarkerComposition(
+    override fun appendMarkerComposition(
         generation: Int,
         sequence: Int,
         payload: ReadableMap?,
@@ -407,7 +409,7 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun commitMarkerComposition(generation: Int) {
+    override fun commitMarkerComposition(generation: Int) {
         markerTrace("commit received generation=$generation")
         markerCoroutine.launch {
             if (markerCompositionGeneration != generation) {
@@ -433,7 +435,7 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun updateMarker(marker: ReadableMap?) {
+    override fun updateMarker(marker: ReadableMap?) {
         if (marker == null) return
         markerCoroutine.launch {
             val id = if (marker.hasKey("id") && !marker.isNull("id")) marker.getString("id") else null
@@ -451,49 +453,49 @@ class MapLibreMapViewWrapper(context: Context) :
         }
     }
 
-    fun compositionPolylines(polylines: ReadableArray?) {
+    override fun compositionPolylines(polylines: ReadableArray?) {
         val states = polylineStatesFromReadableArray(polylines, events::emitPolylineClick)
         mainCoroutine.launch {
             mapController?.compositionPolylines(states)
         }
     }
 
-    fun compositionCircles(circles: ReadableArray?) {
+    override fun compositionCircles(circles: ReadableArray?) {
         val states = circleStatesFromReadableArray(circles, events::emitCircleClick)
         mainCoroutine.launch {
             mapController?.compositionCircles(states)
         }
     }
 
-    fun updateCircle(circle: ReadableMap?) {
+    override fun updateCircle(circle: ReadableMap?) {
         val state = circleStateFromReadableMap(circle, events::emitCircleClick) ?: return
         mainCoroutine.launch {
             mapController?.updateCircle(state)
         }
     }
 
-    fun compositionPolygons(polygons: ReadableArray?) {
+    override fun compositionPolygons(polygons: ReadableArray?) {
         val states = polygonStatesFromReadableArray(polygons, events::emitPolygonClick)
         mainCoroutine.launch {
             mapController?.compositionPolygons(states)
         }
     }
 
-    fun updatePolygon(polygon: ReadableMap?) {
+    override fun updatePolygon(polygon: ReadableMap?) {
         val state = polygonStateFromReadableMap(polygon, events::emitPolygonClick) ?: return
         mainCoroutine.launch {
             mapController?.updatePolygon(state)
         }
     }
 
-    fun updatePolyline(polyline: ReadableMap?) {
+    override fun updatePolyline(polyline: ReadableMap?) {
         val state = polylineStateFromReadableMap(polyline, events::emitPolylineClick) ?: return
         mainCoroutine.launch {
             mapController?.updatePolyline(state)
         }
     }
 
-    fun compositionRasterLayers(layers: ReadableArray?) {
+    override fun compositionRasterLayers(layers: ReadableArray?) {
         val states = rasterLayerStatesFromReadableArray(layers)
         val previousIds = rasterLayerStates.keys
         rasterLayerStates = states.associateBy { it.id }
@@ -503,7 +505,7 @@ class MapLibreMapViewWrapper(context: Context) :
             (extensionLayers + rasterLayerStates).toMutableMap()
     }
 
-    fun compositionGroundImages(images: ReadableArray?) {
+    override fun compositionGroundImages(images: ReadableArray?) {
         val states = groundImageStatesFromReadableArray(images, context, events::emitGroundImageClick)
         val previousIds = groundImageStates.keys
         groundImageStates = states.associateBy { it.id }
@@ -513,7 +515,7 @@ class MapLibreMapViewWrapper(context: Context) :
             (extensionImages + groundImageStates).toMutableMap()
     }
 
-    fun updateGroundImage(image: ReadableMap?) {
+    override fun updateGroundImage(image: ReadableMap?) {
         val state = groundImageStateFromReadableMap(image, context, events::emitGroundImageClick) ?: return
         groundImageStates = groundImageStates + (state.id to state)
         extensionScope.groundImageCollector.flow.value =
@@ -522,7 +524,7 @@ class MapLibreMapViewWrapper(context: Context) :
                 .apply { put(state.id, state) }
     }
 
-    fun updateRasterLayer(layer: ReadableMap?) {
+    override fun updateRasterLayer(layer: ReadableMap?) {
         val state = rasterLayerStateFromReadableMap(layer) ?: return
         rasterLayerStates = rasterLayerStates + (state.id to state)
         extensionScope.rasterLayerCollector.flow.value =
@@ -531,7 +533,7 @@ class MapLibreMapViewWrapper(context: Context) :
                 .apply { put(state.id, state) }
     }
 
-    fun upsertNativeMapExtension(
+    override fun upsertNativeMapExtension(
         extensionId: String,
         type: String,
         payload: ReadableMap?,
@@ -539,7 +541,7 @@ class MapLibreMapViewWrapper(context: Context) :
         nativeMapExtensionHost.upsert(extensionId, type, payload)
     }
 
-    fun removeNativeMapExtension(extensionId: String) {
+    override fun removeNativeMapExtension(extensionId: String) {
         nativeMapExtensionHost.remove(extensionId)
     }
 
