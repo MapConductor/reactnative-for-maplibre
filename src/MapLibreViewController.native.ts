@@ -360,6 +360,8 @@ export class MapLibreViewController
   }
 
   destroy(): void {
+    // 基底の overlayControllers（JS 拡張が registerOverlayController したもの）を先に破棄する
+    super.destroy();
     this.cancelMarkerComposition();
     this.pendingMarkerUpdates.clear();
     this.circleStates.clear();
