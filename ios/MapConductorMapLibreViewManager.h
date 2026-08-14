@@ -1,4 +1,4 @@
-#import <React/RCTViewManager.h>
+#import <MapConductorReactNativeCore/MCReactNativeMapViewManager.h>
 
-@interface MapConductorMapLibreViewManager : RCTViewManager
+@interface MapConductorMapLibreViewManager : MCReactNativeMapViewManagerBase
 @end
