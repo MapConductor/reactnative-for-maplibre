@@ -34,6 +34,19 @@ class MapConductorMapLibreViewManager : SimpleViewManager<MapLibreMapViewWrapper
         view.setMapDesignType(mapDesignType)
     }
 
+    /**
+     * 地図の見た目。JS 側は「記述」だけ送ってくる（コンパイラが wasm で
+     * Hermes に wasm が無い）ので、組み立てはネイティブ側で行う。
+     * 詳細は `ReactNativeVectorStyle`。
+     */
+    @ReactProp(name = "vectorStyle")
+    fun setVectorStyle(
+        view: MapLibreMapViewWrapper,
+        vectorStyle: ReadableMap?,
+    ) {
+        view.setVectorStyle(vectorStyle)
+    }
+
     @ReactProp(name = "infoBubblePositions")
     fun setInfoBubblePositions(
         view: MapLibreMapViewWrapper,

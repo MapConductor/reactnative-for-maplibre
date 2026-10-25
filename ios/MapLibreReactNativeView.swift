@@ -39,6 +39,8 @@ final class MapLibreReactNativeHost: MCReactNativeMapHost {
     }()
 
     var mcServiceRegistry: MutableMapServiceRegistry { state.serviceRegistry }
+    /// `MapLibreMapHost` は `MapViewCoordinatorBase` なので、そのまま差し出せる。
+    var mcStyleHost: MapViewStyleHost? { mapHost.styleHost }
     var mcCameraZoom: Double { state.cameraPosition.zoom }
 
     func mcMakeMapView(content: MapViewContent) -> UIView {
