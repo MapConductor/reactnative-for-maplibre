@@ -49,4 +49,5 @@ interface MapLibreMapViewProps extends MapViewBaseProps<MapLibreViewStateInterfa
  */
 declare function MapLibreMapView(props: MapLibreMapViewProps): React.JSX.Element;
 
-export { type MapLibreMap, MapLibreMapView, MapLibreMapViewHolder, type MapLibreMapViewProps, type MapLibreMapViewRef, MapLibreViewController, type MapLibreViewControllerInterface, type NativeMapLibreViewEvent, type NativeMapLibreViewProps };
+export { MapLibreMapView, MapLibreMapViewHolder, MapLibreViewController };
+export type { MapLibreMap, MapLibreMapViewProps, MapLibreMapViewRef, MapLibreViewControllerInterface, NativeMapLibreViewEvent, NativeMapLibreViewProps };
