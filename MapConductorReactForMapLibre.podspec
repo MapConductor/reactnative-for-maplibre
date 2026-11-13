@@ -21,5 +21,5 @@ Pod::Spec.new do |s|
   s.dependency "MapConductorReactNativeCore"
   s.dependency "MapConductorReactMarkerClustering"
   s.dependency "MapConductorForMapLibre"
-  s.dependency "MapLibre", "~> 6.20"
+  s.dependency "MapLibre", "~> 7.0"
 end
